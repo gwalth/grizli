@@ -42,7 +42,10 @@ photflam_list = {'F098M': 6.0501324882418389e-20,
             'G150': 1.e-20,
             'G800L': 1.,
             'G280':  1., 
-            'F444W': 1.e-20}
+            'F444W': 1.e-20,
+            'H158': 1.e-20, # ROMAN WFI H158 GLW 3/25/21
+            #'H158': 1., # ROMAN WFI H158 GLW 3/25/21
+             }
 
 # Filter pivot wavelengths
 photplam_list = {'F098M': 9864.722728110915,
@@ -90,7 +93,9 @@ photplam_list = {'F098M': 9864.722728110915,
             'F323N': 3.237e+04,
             'F405N': 4.052e+04,
             'F466N': 4.654e+04,
-            'F470N': 4.708e+04}
+            'F470N': 4.708e+04,
+            'H158':15669.045092605676, # ROMAN WFI H158 GLW 3/25/21
+            }
 
 # character to skip clearing line on STDOUT printing
 #no_newline = '\x1b[1A\x1b[1M'
