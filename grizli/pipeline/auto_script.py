@@ -2333,6 +2333,172 @@ def load_GroupFLT(field_root='j142724+334246', PREP_PATH='../Prep', force_ref=No
 
         return [grp]
 
+def load_Roman_GroupFLT(field_root='j142724+334246', PREP_PATH='../Prep', force_ref=None, force_seg=None, force_cat=None, galfit=False, pad=256, files=None, gris_ref_filters=GRIS_REF_FILTERS, split_by_grism=False):
+    """
+    Initialize a GroupFLT object
+    """
+    import glob
+    import os
+    import numpy as np
+
+    from .. import prep, utils, multifit
+
+    if files is None:
+        files = glob.glob(os.path.join(PREP_PATH, '*fl[tc].fits'))
+        files.sort()
+
+    info = utils.get_flt_info(files)
+
+    grism = info['FILTER'] == 'GRISM'
+
+    catalog = force_cat
+
+    grp_objects = []
+
+    # Segmentation image
+    seg_file = force_seg
+
+    # Reference image
+    ref_file = force_ref
+
+    grp = multifit.GroupFLT(grism_files=list(info['FILE'][grism]), direct_files=[], ref_file=ref_file, seg_file=seg_file, catalog=catalog, cpu_count=-1, sci_extn=1, pad=pad,sextractor=True,ref_ext=1)
+    grp_objects.append(grp)
+
+
+    if split_by_grism:
+        return grp_objects
+    else:
+        grp = grp_objects[0]
+        if len(grp_objects) > 0:
+            for i in range(1, len(grp_objects)):
+                grp.extend(grp_objects[i])
+                del(grp_objects[i])
+
+        return [grp]
+
+def roman_grism_prep(field_root='j142724+334246', PREP_PATH='../Prep', EXTRACT_PATH='../Extractions', ds9=None, refine_niter=3, gris_ref_filters=GRIS_REF_FILTERS, files=None, split_by_grism=True, refine_poly_order=1, refine_fcontam=0.5, cpu_count=0, mask_mosaic_edges=True, prelim_mag_limit=25, refine_mag_limits=[18, 24], grisms_to_process=None,force_cat=None,force_ref=None,force_seg=None):
+    """
+    Contamination model for grism exposures
+    """
+    import glob
+    import os
+    import numpy as np
+    import scipy.stats
+
+    try:
+        from .. import prep, utils, multifit
+        frame = inspect.currentframe()
+        utils.log_function_arguments(utils.LOGFILE, frame,
+                                     'auto_script.grism_prep')
+    except:
+        from grizli import prep, utils, multifit
+
+    if grisms_to_process is not None:
+        for g in gris_ref_filters.copy():
+            if g not in grisms_to_process:
+                pg = gris_ref_filters.pop(g)
+
+    grp_objects = load_Roman_GroupFLT(field_root=field_root, PREP_PATH=PREP_PATH, 
+                      gris_ref_filters=gris_ref_filters, files=files, 
+                      split_by_grism=split_by_grism, force_cat=force_cat,
+                      force_ref=force_ref,force_seg=force_seg)
+
+    print(grp_objects)
+
+    for grp in grp_objects:
+
+        ################
+        # Compute preliminary model
+        grp.compute_full_model(fit_info=None, verbose=True, store=False, 
+                               mag_limit=prelim_mag_limit, coeffs=[1.1, -0.5], 
+                               cpu_count=cpu_count)
+
+        ##############
+        # Save model to avoid having to recompute it again
+        grp.save_full_data()
+
+        #############
+        # Mask edges of the exposures not covered by reference image
+        if mask_mosaic_edges:
+            try:
+                # Read footprint file created ealier
+                fp_file = '{0}-ir.npy'.format(field_root)
+                det_poly = np.load(fp_file, allow_pickle=True)[0]['footprint']
+                for flt in grp.FLTs:
+                    flt.mask_mosaic_edges(sky_poly=det_poly, verbose=True,
+                                          dq_mask=False, dq_value=1024,
+                                          err_scale=10, resid_sn=-1)
+            except:
+                pass
+
+        ################
+        # Remove constant modal background
+        for i in range(grp.N):
+            mask = (grp.FLTs[i].model < grp.FLTs[i].grism['ERR']*0.6) 
+            mask &= (grp.FLTs[i].grism['SCI'] != 0)
+
+            # Fit Gaussian to the masked pixel distribution
+            clip = np.ones(mask.sum(), dtype=bool)
+            for iter in range(3):
+                clip_data = grp.FLTs[i].grism.data['SCI'][mask][clip]
+                n = scipy.stats.norm.fit(clip_data)
+                clip = np.abs(grp.FLTs[i].grism.data['SCI'][mask]) < 3*n[1]
+            
+            del(clip_data)
+            mode = n[0]
+
+            logstr = '# grism_mode_bg {0} {1} {2:.4f}'
+            logstr = logstr.format(grp.FLTs[i].grism.parent_file, 
+                                   grp.FLTs[i].grism.filter, mode)
+            utils.log_comment(utils.LOGFILE, logstr, verbose=True)
+
+            try:
+                ds9.view(grp.FLTs[i].grism['SCI'] - grp.FLTs[i].model)
+            except:
+                pass
+
+            # Subtract
+            grp.FLTs[i].grism.data['SCI'] -= mode
+
+        #############
+        # Refine the model
+        i = 0
+        if ds9:
+            ds9.view(grp.FLTs[i].grism['SCI'] - grp.FLTs[i].model)
+            fr = ds9.get('frame')
+
+        utils.log_comment(utils.LOGFILE, '# Refine contamination', 
+                          verbose=True, show_date=True)
+
+        for iter in range(refine_niter):
+            print('\nRefine contamination model, iter # {0}\n'.format(iter))
+            if ds9:
+                ds9.set('frame {0}'.format(int(fr)+iter+1))
+
+            if (iter == 0) & (refine_niter > 0):
+                refine_i = 1
+            else:
+                refine_i = refine_fcontam
+
+            grp.refine_list(poly_order=refine_poly_order, 
+                            mag_limits=refine_mag_limits,
+                            max_coeff=5, ds9=ds9, verbose=True,
+                            fcontam=refine_i)
+
+        ##############
+        # Save model to avoid having to recompute it again
+        grp.save_full_data()
+
+    # Link minimal files to Extractions directory
+    os.chdir(EXTRACT_PATH)
+    os.system(f'ln -s {PREP_PATH}/*GrismFLT* .')
+    os.system(f'ln -s {PREP_PATH}/*_fl*wcs.fits .')
+    os.system(f'ln -s {PREP_PATH}/{field_root}-*.cat.fits .')
+    os.system(f'ln -s {PREP_PATH}/{field_root}-*seg.fits .')
+    os.system(f'ln -s {PREP_PATH}/*_phot.fits .')
+
+    return grp
+
 
 def grism_prep(field_root='j142724+334246', PREP_PATH='../Prep', EXTRACT_PATH='../Extractions', ds9=None, refine_niter=3, gris_ref_filters=GRIS_REF_FILTERS, files=None, split_by_grism=True, refine_poly_order=1, refine_fcontam=0.5, cpu_count=0, mask_mosaic_edges=True, prelim_mag_limit=25, refine_mag_limits=[18, 24], grisms_to_process=None):
     """

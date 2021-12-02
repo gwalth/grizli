@@ -55,6 +55,9 @@ def _loadFLT(grism_file, sci_extn, direct_file, pad, ref_file,
     save_file = save_file.replace('_cmb.fits', new_root)
     save_file = save_file.replace('_rate.fits', new_root)
     save_file = save_file.replace('_elec.fits', new_root)
+    #save_file = save_file.replace('_slitless.fits', new_root)
+    save_file = save_file.replace('_slitless_GLW.fits', new_root) # hack, not sure why I did this GLW
+
 
     if (grism_file.find('_') < 0) & ('GrismFLT' not in grism_file):
         save_file = 'xxxxxxxxxxxxxxxxxxx'
@@ -163,7 +166,7 @@ class GroupFLT():
                  ref_file=None, ref_ext=0, seg_file=None,
                  shrink_segimage=True, verbose=True, cpu_count=0,
                  catalog='', polyx=[0.3, 2.35],
-                 MW_EBV=0.):
+                 MW_EBV=0.,sextractor=False,format=None):
         """Main container for handling multiple grism exposures together
 
         Parameters
@@ -249,7 +252,7 @@ class GroupFLT():
         # Read catalog
         if catalog:
             if isinstance(catalog, str):
-                self.catalog = utils.GTable.gread(catalog)
+                self.catalog = utils.GTable.gread(catalog,sextractor=sextractor,format=format)
             else:
                 self.catalog = catalog
 
@@ -409,6 +412,7 @@ class GroupFLT():
             save_file = save_file.replace('_cmb.fits', new_root)
             save_file = save_file.replace('_rate.fits', new_root)
             save_file = save_file.replace('_elec.fits', new_root)
+            save_file = save_file.replace('_slitless_GLW.fits', new_root) # hack, not sure why I did this GLW
             print('Save {0}'.format(save_file))
             _flt.save_full_pickle()
 
@@ -3643,7 +3647,7 @@ class MultiBeam(GroupFitter):
 
         return chi2/self.DoF
 
-    def drizzle_grisms_and_PAs(self, size=10, fcontam=0, flambda=False, scale=1, pixfrac=0.5, kernel='square', usewcs=False, tfit=None, diff=True, grism_list=['G800L', 'G102', 'G141', 'F090W', 'F115W', 'F150W', 'F200W', 'F356W', 'F410M', 'F444W'], mask_segmentation=True, reset_model=True, make_figure=True, fig_args=dict(mask_segmentation=True, average_only=False, scale_size=1, cmap='viridis_r'), **kwargs):
+    def drizzle_grisms_and_PAs(self, size=10, fcontam=0, flambda=False, scale=1, pixfrac=0.5, kernel='square', usewcs=False, tfit=None, diff=True, grism_list=['G800L', 'G102', 'G141', 'F090W', 'F115W', 'F150W', 'F200W', 'F356W', 'F410M', 'F444W','GRISM'], mask_segmentation=True, reset_model=True, make_figure=True, fig_args=dict(mask_segmentation=True, average_only=False, scale_size=1, cmap='viridis_r'), **kwargs):
         """Make figure showing spectra at different orients/grisms
 
         TBD
@@ -4887,6 +4891,7 @@ def show_drizzle_HDU(hdu, diff=True, mask_segmentation=True, average_only=False,
         fig = plt.figure(figsize=(5*NX*scale_size, 1*NY*scale_size+0.33))
         gs = GridSpec(NY, NX*2, width_ratios=widths)
     else:    
+        print(NX,NY)
         fig = plt.figure(figsize=(5*NX*scale_size, 1*NY*scale_size))
         gs = GridSpec(NY, NX*2, height_ratios=[1]*NY, width_ratios=widths)
 

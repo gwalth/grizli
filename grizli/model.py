@@ -2519,7 +2519,9 @@ class GrismFLT(object):
             _IS_OPEN = False
         else:
             self.ref_file = ref_file
+            print(ref_file)
             ref_str = '{0}[0]'.format(self.ref_file)
+            print(ref_str)
             
             _IS_OPEN = True
             ref_im = pyfits.open(ref_file, load_lazy_hdus=False)
@@ -2958,6 +2960,9 @@ class GrismFLT(object):
         if get_beams:
             out_beams = OrderedDict()
             for b in beam_names:
+                print(b)
+                #if b in beams:  # KILLS KERNEL!!!
+                #    out_beams[b] = beams[b]
                 out_beams[b] = beams[b]
             return out_beams
 
@@ -3377,6 +3382,7 @@ class GrismFLT(object):
         root = self.grism_file.split('_flt.fits')[0].split('_cmb.fits')[0]
         root = root.split('_flc.fits')[0].split('_rate.fits')[0]
         root = root.split('_elec.fits')[0]
+        root = root.split('_slitless_GLW.fits')[0]   # hack, not sure why I did this GLW
 
         hdu = pyfits.HDUList([pyfits.PrimaryHDU()])
         for key in self.direct.data.keys():
