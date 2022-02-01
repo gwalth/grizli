@@ -565,7 +565,10 @@ def get_config_filename(instrume='WFC3', filter='F140W',
         conf_file = os.path.join(GRIZLI_PATH, 'CONF/WFIRST.conf')
 
     if instrume == 'WFIv1-GLW':
-        conf_file = os.path.join(GRIZLI_PATH, 'CONF/Roman.G150-GLW.conf')
+        conf_file = os.path.join(GRIZLI_PATH, 'CONF/Roman.G150-v1-GLW.conf')
+
+    if instrume == 'WFIv2-GLW':
+        conf_file = os.path.join(GRIZLI_PATH, 'CONF/Roman.G150-v2-GLW.conf')
 
     if instrume == 'ROMANv2':
         conf_file = os.path.join(GRIZLI_PATH, 'CONF/Roman.det1.07242020.conf')
