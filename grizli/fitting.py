@@ -2001,10 +2001,12 @@ class GroupFitter(object):
         from scipy.special import huber
         
         NTEMP = len(templates)
+
         if (self.Nphot > 0) & include_photometry:
             A = np.zeros((self.N+NTEMP, self.Nmask))
         else:
             A = np.zeros((self.N+NTEMP, self.Nspec))
+
 
         if fit_background:
             A[:self.N, :self.Nspec] = self.A_bgm

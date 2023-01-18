@@ -3454,9 +3454,15 @@ class MultiBeam(GroupFitter):
                 elif 'GRISM' in self.Ngrism:
                     # WFIRST
                     fwhm = 350
+                elif 'GR' in self.Ngrism:
+                    # WFIRST
+                    fwhm = 350
                 elif 'G150' in self.Ngrism:
                     # WFIRST
                     fwhm = 350
+                elif 'RED' in self.Ngrism:
+                    # EUCLID
+                    fwhm = 395
                 else:
                     fwhm = 700
                     
@@ -3472,8 +3478,12 @@ class MultiBeam(GroupFitter):
                     dlam = 18
                 elif 'GRISM' in self.Ngrism:
                     dlam = 11
+                elif 'GR' in self.Ngrism:
+                    dlam = 11
                 elif 'G150' in self.Ngrism:
                     dlam = 11
+                elif 'RED' in self.Ngrism:
+                    dlam = 13
                 else:
                     dlam = 25 # G102
                     
@@ -3540,7 +3550,7 @@ class MultiBeam(GroupFitter):
         data = '{0:7d} {1:.6f} {2:.6f} {3:.5f}'.format(self.id, self.ra, self.dec,
                                       fit['zbest'])
 
-        for grism in ['G800L', 'G280', 'G102', 'G141', 'GRISM']:
+        for grism in ['G800L', 'G280', 'G102', 'G141', 'GRISM', 'GR', 'RED', 'BLUE']:
             label += ' N{0}'.format(grism)
             if grism in self.Ngrism:
                 data += ' {0:2d}'.format(self.Ngrism[grism])
@@ -3721,7 +3731,8 @@ class MultiBeam(GroupFitter):
 
         return chi2/self.DoF
 
-    def drizzle_grisms_and_PAs(self, size=10, fcontam=0, flambda=False, scale=1, pixfrac=0.5, kernel='square', usewcs=False, tfit=None, diff=True, grism_list=['G800L', 'G102', 'G141', 'GR150C', 'GR150R', 'F090W', 'F115W', 'F150W', 'F200W', 'F356W', 'F410M', 'F444W'], mask_segmentation=True, reset_model=True, make_figure=True, fig_args=dict(mask_segmentation=True, average_only=False, scale_size=1, cmap='viridis_r'), **kwargs):
+    def drizzle_grisms_and_PAs(self, size=10, fcontam=0, flambda=False, scale=1, pixfrac=0.5, kernel='square', usewcs=False, tfit=None,
+diff=True, grism_list=['G800L', 'G102', 'G141', 'GR150C', 'GR150R', 'GR', 'RED', 'BLUE', 'F090W', 'F115W', 'F150W', 'F200W', 'F356W', 'F410M', 'F444W'], mask_segmentation=True, reset_model=True, make_figure=True, fig_args=dict(mask_segmentation=True, average_only=False, scale_size=1, cmap='viridis_r'), **kwargs):
         """Make figure showing spectra at different orients/grisms
 
         TBD

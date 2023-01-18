@@ -587,6 +587,18 @@ def get_config_filename(instrume='WFC3', filter='F140W',
     if instrume == 'WFIRST':
         conf_file = os.path.join(GRIZLI_PATH, 'CONF/WFIRST.conf')
 
+    if instrume == 'WFIv1-GLW':
+        conf_file = os.path.join(GRIZLI_PATH, 'CONF/Roman.G150-v1-GLW.conf')
+
+    if instrume == 'WFIv2-GLW':
+        conf_file = os.path.join(GRIZLI_PATH, 'CONF/Roman.G150-v2-GLW.conf')
+
+    if instrume == 'ROMANv2':
+        conf_file = os.path.join(GRIZLI_PATH, 'CONF/Roman.det1.07242020.conf')
+
+    if instrume == 'ROMANv1':
+        conf_file = os.path.join(GRIZLI_PATH, 'CONF/Roman_bad/Roman.det1.07242020.conf')
+
     if instrume == 'WFI':
         conf_file = os.path.join(GRIZLI_PATH, 'CONF/Roman.G150.conf')
 
@@ -601,6 +613,22 @@ def get_config_filename(instrume='WFC3', filter='F140W',
             conf_file = os.path.join(GRIZLI_PATH, 'CONF/Euclid.Gblue.0.conf')
         else:
             conf_file = os.path.join(GRIZLI_PATH, 'CONF/Euclid.Gred.0.conf')
+
+    if instrume == 'NISP-GLWv1':
+        if grism == 'RED':
+            conf_file = os.path.join(GRIZLI_PATH, 'CONF/CONF11/NISP_RGS000_21.conf')
+        #else:
+        #    conf_file = os.path.join(GRIZLI_PATH, 'CONF/Euclid.Gred.0.conf')
+
+    if 'NISP-GLWv2' in instrume:
+
+        det = instrume.split("-")[-1][-2:]
+
+        if grism == 'RED':
+            conf_file = os.path.join(GRIZLI_PATH, f'Euclid/CONF{det}/NISP_RGS000_{det}.conf')
+        #else:
+        #    conf_file = os.path.join(GRIZLI_PATH, 'CONF/Euclid.Gred.0.conf')
+
 
     return conf_file
 

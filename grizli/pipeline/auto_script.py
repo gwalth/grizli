@@ -444,7 +444,7 @@ def go(root='j010311+131615',
         return True
 
     visits, all_groups, info = parsed
-    run_has_grism = np.in1d(info['FILTER'], ['G141', 'G102', 'G800L', 'GR150C', 'GR150R']).sum() > 0
+    run_has_grism = np.in1d(info['FILTER'], ['G141', 'G102', 'G800L', 'GR150C', 'GR150R','GR','RED','BLUE']).sum() > 0
     # is PUPIL in info?
     run_has_grism |= np.in1d(info['PUPIL'], ['GRISMR', 'GRISMC']).sum() > 0
 
@@ -2746,7 +2746,7 @@ def load_GroupFLT(field_root='j142724+334246', PREP_PATH='../Prep', force_ref=No
                 info['PUPIL'][idx] = filter.split('-')[-2]
 
     masks = {}
-    for gr in ['G141', 'G102', 'G800L']:
+    for gr in ['G141', 'G102', 'G800L', 'GR', 'RED', 'BLUE']:
         masks[gr.lower()] = [info['FILTER'] == gr, gr, '']
     
     ## NIRISS

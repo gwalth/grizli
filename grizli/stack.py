@@ -49,6 +49,10 @@ def make_templates(grism='G141', return_lists=False, fsps_templates=False,
         fwhm = 1500
     elif grism == 'GRISM':  # WFIRST
         fwhm = 350
+    elif grism == 'GR':  # WFIRST
+        fwhm = 350
+    elif grism == 'RED':  # WFIRST
+        fwhm = 395
     else:
         fwhm = 700  # G102
 
