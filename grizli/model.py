@@ -49,7 +49,10 @@ photflam_list = {'F098M': 6.0501324882418389e-20,
             'F150W': 1.,
             'F200W': 1.,
             'F158': 1.e-20, # ROMAN WFI F158 GLW 10/5/22
-            'NISP_H':1.e-20, # Euclid NISP H GLW 10/5/22
+            'VIS': 1.e-20,    # Euclid VIS    GLW 5/17/23
+            'NISP_Y': 1.e-20, # Euclid NISP Y GLW 5/17/23
+            'NISP_J': 1.e-20, # Euclid NISP J GLW 5/17/23
+            'NISP_H': 1.e-20, # Euclid NISP H GLW 5/17/23
             }
 
 # Filter pivot wavelengths
@@ -100,8 +103,11 @@ photplam_list = {'F098M': 9864.722728110915,
             'F405N': 4.052e+04,
             'F466N': 4.654e+04,
             'F470N': 4.708e+04,
-            'F158':15669.045092605676, # ROMAN WFI H158 GLW 3/25/21
-            'NISP_H':15000., # Euclid NISP GLW 9/23/22
+            'F158': 15669.045092605676,  # ROMAN WFI H158 GLW 3/25/21
+            'VIS': 7102.612795438403,      # Euclid VIS GLW 4/13/23
+            'NISP_Y': 10785.387735681754,  # Euclid NISP GLW 4/13/23
+            'NISP_J': 13620.676219329825,  # Euclid NISP GLW 4/13/23
+            'NISP_H': 17648.78006935212,   # Euclid NISP GLW 4/13/23
             }
 
 # character to skip clearing line on STDOUT printing

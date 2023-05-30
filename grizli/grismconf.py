@@ -625,7 +625,7 @@ def get_config_filename(instrume='WFC3', filter='F140W',
         det = instrume.split("-")[-1][-2:]
 
         if grism == 'RED':
-            conf_file = os.path.join(GRIZLI_PATH, f'Euclid/CONF{det}/NISP_RGS000_{det}.conf')
+            conf_file = os.path.join(GRIZLI_PATH, f'CONF/Euclid/CONF{det}/NISP_RGS000_{det}.conf')
         #else:
         #    conf_file = os.path.join(GRIZLI_PATH, 'CONF/Euclid.Gred.0.conf')
 
